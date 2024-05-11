@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:doctor_app/controllers/patient_controller/get_patient_controller.dart';
 import 'package:doctor_app/models/add_patient_model.dart';
 import 'package:doctor_app/pages/patient_pages/add_patient_page.dart';
@@ -21,23 +22,31 @@ class SessionsPage extends StatelessWidget {
         title: 'Sessions',
         actionIcon: Icons.edit,
       ),
-      body: FutureBuilder(
-        future: patientController.getAllPatients(),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: patientController.getPatientsStream(), // Use the stream
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+          if (snapshot.hasError) {
+            print('Error fetching patients: ${snapshot.error}');
+            return const Center(child: Text('Error fetching patients'));
           }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No patients found'));
+          }
+
+          final patients = snapshot.data!.docs.map((doc) {
+            return PatientData.fromJson(doc.data() as Map<String, dynamic>);
+          }).toList();
+
           // print('Hello${snapshot.data?.first.sessionTime}');
-          return snapshot.data!.isEmpty
+          return patients.isEmpty
               ? const Center(
                   child: Text('No data found'),
                 )
               : ListView.builder(
-                  itemCount: snapshot.data?.length,
+                  itemCount: patients.length,
                   itemBuilder: (context, index) {
-                    final data = snapshot.data![index];
+                    final data = patients[index];
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: InkWell(
@@ -51,11 +60,10 @@ class SessionsPage extends StatelessWidget {
                                     sessionFor: data.sessionFor),
                               )),
                           child: appContainer(
-                              subheading: snapshot.data?[index].sessionFor,
-                              time: snapshot.data![index].time,
-                              date: snapshot.data![index].date,
-                              widget: snapshot.data![index].status ==
-                                      'Completed'
+                              subheading: patients[index].sessionFor,
+                              time: patients[index].time,
+                              date: patients[index].date,
+                              widget: patients[index].status == 'Completed'
                                   ? const Text(
                                       'Done',
                                       style: TextStyle(
@@ -100,7 +108,7 @@ class SessionsPage extends StatelessWidget {
                                             icon: const Icon(Icons.delete))
                                       ],
                                     ),
-                              heding: snapshot.data![index].patientName)),
+                              heding: patients[index].patientName)),
                     );
                   },
                 );

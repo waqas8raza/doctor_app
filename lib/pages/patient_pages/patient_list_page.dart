@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:doctor_app/controllers/patient_controller/get_patient_controller.dart';
 import 'package:doctor_app/pages/patient_pages/add_patient_page.dart';
 import 'package:doctor_app/utils/widgets/app_bar.dart';
@@ -20,77 +21,80 @@ class PatientLiatPage extends StatelessWidget {
         title: 'Patients List',
         actionIcon: Icons.edit,
       ),
-      body: FutureBuilder(
-        future: patientController.getAllPatients(),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: patientController.getPatientsStream(), // Use the stream
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+          if (snapshot.hasError) {
+            print('Error fetching patients: ${snapshot.error}');
+            return const Center(child: Text('Error fetching patients'));
           }
-          return snapshot.data!.isEmpty
-              ? const Center(
-                  child: Text('No data found'),
-                )
-              : ListView.builder(
-                  itemCount: snapshot.data?.length,
-                  itemBuilder: (context, index) {
-                    final data = snapshot.data![index];
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: appContainer(
-                          subheading: snapshot.data?[index].sessionFor,
-                          time: snapshot.data![index].time,
-                          date: snapshot.data![index].date,
-                          widget: snapshot.data![index].status == 'Completed'
-                              ? const Text(
-                                  'Done',
-                                  style: TextStyle(
-                                      color: Colors.greenAccent,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              : Row(
-                                  children: [
-                                    IconButton(
-                                        onPressed: () {
-                                          Get.to(AddPatientPage(
-                                            patient: PatientData(
-                                                id: data.id,
-                                                patientName: data.patientName,
-                                                date: data.date,
-                                                time: data.time,
-                                                sessionTime: data.sessionTime,
-                                                sessionFor: data.sessionFor),
-                                          ));
-                                        },
-                                        icon: const Icon(Icons.edit)),
-                                    IconButton(
-                                        onPressed: () {
-                                          Get.defaultDialog(
-                                            backgroundColor: Colors.greenAccent,
-                                            content: const Text(
-                                                'Patient will be permanantly deleted'),
-                                            title: 'Do you want to delete?',
-                                            onConfirm: () {
-                                              patientController
-                                                  .deletePatient(data.id!);
-                                              Get.back();
-                                              snapshot.data!.removeWhere(
-                                                  (patient) =>
-                                                      patient.id == data.id);
-                                            },
-                                            onCancel: () {
-                                              Get.back();
-                                            },
-                                          );
-                                        },
-                                        icon: const Icon(Icons.delete))
-                                  ],
-                                ),
-                          heding: snapshot.data![index].patientName),
-                    );
-                  },
-                );
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No patients found'));
+          }
+
+          final patients = snapshot.data!.docs.map((doc) {
+            return PatientData.fromJson(doc.data() as Map<String, dynamic>);
+          }).toList();
+
+          return ListView.builder(
+            itemCount: patients.length,
+            itemBuilder: (context, index) {
+              final data = patients[index];
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: appContainer(
+                  subheading: data.sessionFor,
+                  time: data.time,
+                  date: data.date,
+                  widget: data.status == 'Completed'
+                      ? const Text(
+                          'Done',
+                          style: TextStyle(
+                              color: Colors.greenAccent,
+                              fontWeight: FontWeight.bold),
+                        )
+                      : Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Get.to(AddPatientPage(
+                                  patient: PatientData(
+                                    id: data.id,
+                                    patientName: data.patientName,
+                                    date: data.date,
+                                    time: data.time,
+                                    sessionTime: data.sessionTime,
+                                    sessionFor: data.sessionFor,
+                                  ),
+                                ));
+                              },
+                              icon: const Icon(Icons.edit),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Get.defaultDialog(
+                                  backgroundColor: Colors.greenAccent,
+                                  content: const Text(
+                                      'Patient will be permanently deleted'),
+                                  title: 'Do you want to delete?',
+                                  onConfirm: () {
+                                    patientController.deletePatient(data.id!);
+                                    // No need to remove from local list as the stream will update it
+                                    Get.back();
+                                  },
+                                  onCancel: () => Get.back(),
+                                );
+                              },
+                              icon: const Icon(Icons.delete),
+                            ),
+                          ],
+                        ),
+                  heding: data.patientName,
+                ),
+              );
+            },
+          );
         },
       ),
     );

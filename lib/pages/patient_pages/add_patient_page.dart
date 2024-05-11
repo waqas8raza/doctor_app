@@ -178,7 +178,8 @@ class _AddPatientPageState extends State<AddPatientPage> {
                     ),
                     child: const Center(
                       child: Text(
-                        'Standard\n15 mins',
+                        textAlign: TextAlign.center,
+                        'Standard\nHospital Sitting',
                         style: AppTextStyles.bodyBold,
                       ),
                     ),
@@ -189,7 +190,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                     setState(() {
                       isPremium = true;
                       isStandarad = false;
-                      time = 30;
+                      time = 15;
                       sessionType = 'Premium';
                     });
                   },
@@ -202,7 +203,8 @@ class _AddPatientPageState extends State<AddPatientPage> {
                     ),
                     child: const Center(
                       child: Text(
-                        'Premium\n30 mins',
+                        textAlign: TextAlign.center,
+                        'Premium\nHome Sitting',
                         style: AppTextStyles.bodyBold,
                       ),
                     ),
@@ -290,6 +292,8 @@ class _AddPatientPageState extends State<AddPatientPage> {
                         status: 'Pending',
                       ),
                     );
+
+                    Get.back();
                   }
                 }
               },

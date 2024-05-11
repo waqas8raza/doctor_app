@@ -8,23 +8,46 @@ class GetNoteController extends GetxController {
 
   RxList<AddNote> notes = <AddNote>[].obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    getAllNotes();
-  }
-
   Future<void> getAllNotes() async {
     try {
       final querySnapshot = await _firestore.collection('notes').get();
 
-      List<AddNote> fetchedNotes = querySnapshot.docs.map((doc) {
+      final fetchedNotes = querySnapshot.docs.map((doc) {
         return AddNote.fromJson(doc.data() as Map<String, dynamic>);
       }).toList();
 
-      notes.assignAll(fetchedNotes);
+      notes.value = fetchedNotes; // Update directly using value
     } catch (e) {
-      //  print('Error fetching notes: $e');
+      // Handle errors gracefully
+      print('Error fetching notes: $e');
+    }
+  }
+
+  Future<void> updateNote(AddNote note) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('notes')
+          .where("id", isEqualTo: note.id)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        Get.snackbar('Error', 'Note not found');
+        return;
+      }
+
+      final docRef = querySnapshot.docs.first.reference;
+
+      await docRef.update(note.toJson());
+      Get.snackbar('Success', 'Successfully Updated');
+
+      // Update the local list efficiently
+      final index =
+          notes.indexWhere((existingNote) => existingNote.id == note.id);
+      if (index != -1) {
+        notes[index] = note; // Update the specific note in the list
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
     }
   }
 
@@ -36,15 +59,16 @@ class GetNoteController extends GetxController {
           .get();
 
       if (querySnapshot.docs.isEmpty) {
-        Get.snackbar('Error', 'Patient with ID $noteId not found');
+        Get.snackbar('Error', 'Note with ID $noteId not found');
         return;
       }
 
       final document = querySnapshot.docs.first;
-      await document.reference
-          .delete()
-          .then((_) => Get.snackbar('Success', 'Note deleted'));
-      update();
+      await document.reference.delete().then((_) {
+        Get.snackbar('Success', 'Note deleted');
+        notes.removeWhere((note) => note.id == noteId); // Remove from list
+        Get.back(); // Navigate back if needed
+      });
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete note: $e');
     }

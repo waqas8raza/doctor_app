@@ -133,10 +133,11 @@ class ToDoPage extends StatelessWidget {
                                               onConfirm: () {
                                                 getNoteController.deleteNote(
                                                     notes[index].id);
-                                                Get.back();
+
                                                 notes.removeWhere((patient) =>
                                                     patient.id ==
                                                     notes[index].id);
+                                                Get.back();
                                               },
                                               onCancel: () {
                                                 Get.back();

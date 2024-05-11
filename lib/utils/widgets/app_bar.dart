@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final IconData? actionIcon;
+  final Widget? leadingWidget;
   final VoidCallback? onActionPressed;
 
   const MyAppBar({
     Key? key,
     required this.title,
     this.actionIcon,
+    this.leadingWidget,
     this.onActionPressed,
   }) : super(key: key);
 
@@ -17,12 +18,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Color.fromARGB(255, 231, 246, 238),
-      leading: IconButton(
-        onPressed: () {
-          Get.back();
-        },
-        icon: const Icon(Icons.keyboard_arrow_left_outlined),
-      ),
+      leading: leadingWidget,
       title: Center(child: Text(title)), // Centered title
       actions: <Widget>[
         IconButton(

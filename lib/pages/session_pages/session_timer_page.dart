@@ -1,5 +1,6 @@
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:doctor_app/controllers/patient_controller/add_patient_controller.dart';
+import 'package:doctor_app/pages/bottom_navigation_bar_pages/bottom_navigation_bar_page.dart';
 import 'package:doctor_app/utils/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,12 +48,8 @@ class _SessionTimerPageState extends State<SessionTimerPage> {
                 children: [
                   Center(
                     child: CircularCountDownTimer(
-                      duration:
-                          5, // Countdown duration in Seconds (15 seconds).
-
-                      // Other Countdown Timer properties...
+                      duration: 900,
                       initialDuration: 0,
-
                       controller: _controller,
                       width: MediaQuery.of(context).size.width / 2,
                       height: MediaQuery.of(context).size.height / 2,
@@ -76,6 +73,9 @@ class _SessionTimerPageState extends State<SessionTimerPage> {
                       },
                       onComplete: () {
                         Get.defaultDialog(
+                            onConfirm: () {
+                              Get.offAll(() => BottomNavBarPage());
+                            },
                             backgroundColor: Colors.greenAccent,
                             title: 'Completed',
                             titleStyle: TextStyle(color: Colors.white),
@@ -102,16 +102,16 @@ class _SessionTimerPageState extends State<SessionTimerPage> {
                       },
                     ),
                   ),
-                  const ListTile(
+                  ListTile(
                     leading: CircleAvatar(
                       foregroundImage: AssetImage('assets/doctor.jpg'),
                     ),
                     title: Text(
-                      'Mr John',
+                      widget.name,
                       style: AppTextStyles.bodyBold,
                     ),
                     subtitle: Text(
-                      'Medicine consultancy',
+                      widget.sessionFor,
                       style: AppTextStyles.bodyRegular,
                     ),
                   ),

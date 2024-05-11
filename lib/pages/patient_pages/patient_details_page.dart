@@ -1,10 +1,9 @@
+import 'package:doctor_app/pages/bottom_navigation_bar_pages/bottom_navigation_bar_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../controllers/patient_controller/add_patient_controller.dart';
-import '../../controllers/patient_controller/get_patient_controller.dart';
 import '../../models/add_patient_model.dart';
 import '../../utils/constants/text_style_constant.dart';
 import '../../utils/widgets/app_bar.dart';
@@ -103,6 +102,7 @@ class PatientDetailsPage extends StatelessWidget {
                 buttonText: 'Save',
                 onPressed: () {
                   firebaseService.addPatientData(patient);
+                  Get.offAll(() => BottomNavBarPage());
                 },
               ),
             ],

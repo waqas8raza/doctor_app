@@ -35,7 +35,7 @@ Widget appContainer(
                     ),
                   ),
                   SizedBox(
-                    width: 50.w,
+                    width: 45.w,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,10 +62,6 @@ Widget appContainer(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   const Icon(Icons.timer),
-                  const Text(
-                    'Wed',
-                    style: AppTextStyles.bodyRegular,
-                  ),
                   Text(
                     date!,
                     style: AppTextStyles.bodyRegular,

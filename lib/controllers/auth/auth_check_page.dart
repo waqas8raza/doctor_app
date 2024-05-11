@@ -1,5 +1,6 @@
 import 'package:doctor_app/pages/auth_pages/login_page.dart';
 import 'package:doctor_app/pages/bottom_navigation_bar_pages/bottom_navigation_bar_page.dart';
+import 'package:doctor_app/pages/splash_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class AuthenticationCheckerPage extends StatelessWidget {
           return BottomNavBarPage();
         } else {
           // User is not authenticated, navigate to login screen
-          return LoginPAge();
+          return const SplashPage();
         }
       },
     );
