@@ -12,8 +12,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Get.put(GetNoteController());
-
-  // Fetch notes from Firestore upon app start
   await Get.find<GetNoteController>().getAllNotes();
 
   runApp(const MyApp());
